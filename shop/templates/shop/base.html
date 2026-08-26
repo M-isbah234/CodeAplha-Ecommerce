@@ -1,0 +1,74 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}ApexMarket | Premium E-Commerce Store{% endblock %}</title>
+  <meta name="description" content="Discover premium products at ApexMarket. Fast shipping and smooth checkout experience.">
+  <link rel="stylesheet" href="{% static 'shop/css/style.css' %}">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="navbar-container">
+      <a href="{% url 'shop:product_list' %}" class="brand-logo">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/></svg>
+        ApexMarket
+      </a>
+
+      <!-- Search Bar -->
+      <div class="search-bar">
+        <form action="{% url 'shop:product_list' %}" method="get" class="search-form">
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" name="q" class="search-input" placeholder="Search products..." value="{{ search_query|default:'' }}">
+        </form>
+      </div>
+
+      <!-- User Nav & Cart -->
+      <div class="nav-actions">
+        <a href="{% url 'shop:cart_detail' %}" class="cart-btn" id="cart-badge-link" title="Shopping Cart">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+          <span class="cart-badge">{{ cart|length }}</span>
+        </a>
+
+        <div class="auth-btns">
+          {% if user.is_authenticated %}
+            <span style="font-size: 0.9rem; color: var(--text-muted);">Hi, <strong style="color: var(--text-main);">{{ user.username }}</strong></span>
+            <a href="{% url 'shop:admin_dashboard' %}" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">Admin Panel</a>
+            <a href="{% url 'accounts:logout' %}" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">Logout</a>
+          {% else %}
+            <a href="{% url 'accounts:login' %}" class="login-btn-link" style="font-size: 0.9rem; font-weight: 500; color: var(--text-main); margin-right: 0.5rem; transition: var(--transition-fast);">Login</a>
+            <a href="{% url 'accounts:register' %}" class="btn btn-primary" style="padding: 0.5rem 1.2rem; font-size: 0.9rem; border-radius: 9999px;">Sign Up</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Django Messages -->
+  {% if messages %}
+    <div class="messages-container">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+          <span>{{ message }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- Main Body Content -->
+  <main class="main-content">
+    {% block content %}
+    {% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>&copy; {% now "Y" %} ApexMarket E-Commerce Platform. Built with Django &amp; Vanilla CSS.</p>
+  </footer>
+
+  <script src="{% static 'shop/js/main.js' %}"></script>
+</body>
+</html>

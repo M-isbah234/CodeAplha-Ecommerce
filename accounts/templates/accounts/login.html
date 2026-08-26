@@ -1,0 +1,36 @@
+{% extends "shop/base.html" %}
+
+{% block title %}Sign In | ApexMarket{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+  <div class="auth-header">
+    <h2>Sign In to ApexMarket</h2>
+    <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.4rem;">
+      Enter your details to access your account and orders.
+    </p>
+  </div>
+
+  <form action="." method="post">
+    {% csrf_token %}
+    <div class="form-group">
+      <label class="form-label">Username</label>
+      <input type="text" name="username" class="form-input" placeholder="Your username" required autofocus>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input type="password" name="password" class="form-input" placeholder="Your password" required>
+    </div>
+
+    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem; padding: 0.85rem; font-size: 1rem;">
+      Sign In
+    </button>
+  </form>
+
+  <div style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-muted);">
+    Don't have an account yet? 
+    <a href="{% url 'accounts:register' %}" style="color: var(--primary-accent); font-weight: 600;">Create One</a>
+  </div>
+</div>
+{% endblock %}

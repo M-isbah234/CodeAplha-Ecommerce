@@ -1,0 +1,45 @@
+{% extends "shop/base.html" %}
+{% load static %}
+
+{% block title %}Order Confirmation #{{ order.id }} | ApexMarket{% endblock %}
+
+{% block content %}
+<div style="max-width: 650px; margin: 2rem auto; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 3rem; text-align: center;">
+
+  <div style="width: 72px; height: 72px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; border-radius: 9999px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+  </div>
+
+  <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem;">Thank You For Your Order!</h1>
+  <p style="color: var(--text-muted); font-size: 1rem; margin-bottom: 2rem;">
+    Your order has been successfully placed and processed.
+  </p>
+
+  <div style="background: var(--bg-surface-elevated); border-radius: var(--radius-md); padding: 1.5rem; text-align: left; margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+      <span style="color: var(--text-muted);">Order Number:</span>
+      <strong style="color: var(--text-main);">#{{ order.id }}</strong>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+      <span style="color: var(--text-muted);">Recipient:</span>
+      <strong style="color: var(--text-main);">{{ order.first_name }} {{ order.last_name }}</strong>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+      <span style="color: var(--text-muted);">Shipping Address:</span>
+      <strong style="color: var(--text-main);">{{ order.address }}, {{ order.city }} ({{ order.postal_code }})</strong>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+      <span style="color: var(--text-muted);">Total Paid:</span>
+      <strong style="font-size: 1.35rem; color: var(--emerald-accent);">${{ order.get_total_cost }}</strong>
+    </div>
+  </div>
+
+  <a href="{% url 'shop:product_list' %}" class="btn btn-primary" style="padding: 0.8rem 2rem;">
+    Continue Shopping
+  </a>
+
+</div>
+{% endblock %}

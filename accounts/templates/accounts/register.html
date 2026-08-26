@@ -1,0 +1,39 @@
+{% extends "shop/base.html" %}
+
+{% block title %}Create Account | ApexMarket{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper" style="max-width: 480px;">
+  <div class="auth-header">
+    <h2>Create Your Account</h2>
+    <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.4rem;">
+      Join ApexMarket for fast checkout and order tracking.
+    </p>
+  </div>
+
+  <form action="." method="post">
+    {% csrf_token %}
+
+    {% for field in form %}
+      <div class="form-group">
+        <label class="form-label">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}
+          <div style="color: #f87171; font-size: 0.8rem; margin-top: 0.25rem;">
+            {{ field.errors.0 }}
+          </div>
+        {% endif %}
+      </div>
+    {% endfor %}
+
+    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem; padding: 0.85rem; font-size: 1rem;">
+      Create Account
+    </button>
+  </form>
+
+  <div style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-muted);">
+    Already have an account? 
+    <a href="{% url 'accounts:login' %}" style="color: var(--primary-accent); font-weight: 600;">Sign In</a>
+  </div>
+</div>
+{% endblock %}

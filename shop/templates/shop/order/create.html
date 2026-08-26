@@ -1,0 +1,82 @@
+{% extends "shop/base.html" %}
+{% load static %}
+
+{% block title %}Checkout | ApexMarket{% endblock %}
+
+{% block content %}
+<h1 style="font-size: 1.85rem; font-weight: 700; margin-bottom: 1.5rem;">Checkout &amp; Order Processing</h1>
+
+<div style="display: grid; grid-template-columns: 1fr 380px; gap: 2rem;">
+
+  <!-- Shipping Information Form -->
+  <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 2rem;">
+    <h3 style="font-size: 1.2rem; font-weight: 600; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+      Shipping &amp; Customer Details
+    </h3>
+
+    <form action="." method="post">
+      {% csrf_token %}
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label">First Name</label>
+          {{ form.first_name }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last Name</label>
+          {{ form.last_name }}
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        {{ form.email }}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Shipping Address</label>
+        {{ form.address }}
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label">City</label>
+          {{ form.city }}
+        </div>
+        <div class="form-group">
+          <label class="form-label">Postal Code</label>
+          {{ form.postal_code }}
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1.5rem; padding: 0.9rem; font-size: 1rem;">
+        Place Order &amp; Pay (${{ cart.get_total_price }})
+      </button>
+    </form>
+  </div>
+
+  <!-- Order Summary -->
+  <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 2rem; height: fit-content;">
+    <h3 style="font-size: 1.2rem; font-weight: 600; margin-bottom: 1.25rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+      Order Summary
+    </h3>
+
+    <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem;">
+      {% for item in cart %}
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem;">
+          <div>
+            <span style="font-weight: 600;">{{ item.product.name }}</span>
+            <span style="color: var(--text-muted); font-size: 0.8rem; display: block;">Qty: {{ item.quantity }} &times; ${{ item.price }}</span>
+          </div>
+          <span style="font-weight: 600;">${{ item.total_price }}</span>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div style="border-top: 1px dashed var(--border-color); padding-top: 1rem; display: flex; justify-content: space-between; align-items: center;">
+      <span style="font-weight: 600;">Total Amount</span>
+      <span style="font-size: 1.4rem; font-weight: 700; color: var(--emerald-accent);">${{ cart.get_total_price }}</span>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
