@@ -74,7 +74,7 @@
             <span style="font-size: 0.9rem; color: var(--text-muted);">Hi, <strong style="color: var(--text-main);">{{ user.username }}</strong></span>
             <a href="{% url 'accounts:dashboard' %}" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">My Account</a>
             {% if user.is_staff %}
-            <a href="{% url 'shop:admin_dashboard' %}" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">Admin Panel</a>
+            <a href="{% url 'admin_panel:dashboard' %}" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">Admin Panel</a>
             {% endif %}
             <a href="{% url 'accounts:logout' %}" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">Logout</a>
           {% else %}
