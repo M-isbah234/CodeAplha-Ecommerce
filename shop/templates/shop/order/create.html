@@ -49,7 +49,7 @@
       </div>
 
       <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1.5rem; padding: 0.9rem; font-size: 1rem;">
-        Place Order &amp; Pay (${{ cart.get_total_price }})
+        Place Order &amp; Pay (PKR {{ cart.get_total_price }})
       </button>
     </form>
   </div>
@@ -65,16 +65,16 @@
         <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem;">
           <div>
             <span style="font-weight: 600;">{{ item.product.name }}</span>
-            <span style="color: var(--text-muted); font-size: 0.8rem; display: block;">Qty: {{ item.quantity }} &times; ${{ item.price }}</span>
+            <span style="color: var(--text-muted); font-size: 0.8rem; display: block;">Qty: {{ item.quantity }} &times; PKR {{ item.price }}</span>
           </div>
-          <span style="font-weight: 600;">${{ item.total_price }}</span>
+          <span style="font-weight: 600;">PKR {{ item.total_price }}</span>
         </div>
       {% endfor %}
     </div>
 
     <div style="border-top: 1px dashed var(--border-color); padding-top: 1rem; display: flex; justify-content: space-between; align-items: center;">
       <span style="font-weight: 600;">Total Amount</span>
-      <span style="font-size: 1.4rem; font-weight: 700; color: var(--emerald-accent);">${{ cart.get_total_price }}</span>
+      <span style="font-size: 1.4rem; font-weight: 700; color: var(--emerald-accent);">PKR {{ cart.get_total_price }}</span>
     </div>
   </div>
 

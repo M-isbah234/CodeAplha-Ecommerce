@@ -119,3 +119,51 @@ def category_add(request):
     else:
         form = CategoryForm()
     return render(request, 'admin_panel/category_form.html', {'form': form})
+
+from django.utils import timezone
+from datetime import timedelta
+from django.db.models import Sum, Count, Avg, F
+
+@staff_member_required
+def analytics_view(request):
+    now = timezone.now()
+    seven_days_ago = now - timedelta(days=7)
+    thirty_days_ago = now - timedelta(days=30)
+    
+    # 30-day stats
+    thirty_day_orders = Order.objects.filter(created__gte=thirty_days_ago, paid=True)
+    thirty_day_sales = sum(order.get_total_cost() for order in thirty_day_orders)
+    thirty_day_aov = thirty_day_sales / thirty_day_orders.count() if thirty_day_orders.count() > 0 else 0
+    thirty_day_profit = thirty_day_sales * 0.20 # 20% margin assumption
+    
+    # 7-day stats
+    seven_day_orders = Order.objects.filter(created__gte=seven_days_ago, paid=True)
+    seven_day_sales = sum(order.get_total_cost() for order in seven_day_orders)
+    seven_day_aov = seven_day_sales / seven_day_orders.count() if seven_day_orders.count() > 0 else 0
+    seven_day_profit = seven_day_sales * 0.20 # 20% margin assumption
+    
+    # Top selling SKUs
+    top_selling_skus = OrderItem.objects.filter(order__paid=True).values('product__name').annotate(total_qty=Sum('quantity')).order_by('-total_qty')[:5]
+    
+    # Fastest moving categories
+    fastest_categories = OrderItem.objects.filter(order__paid=True).values('product__category__name').annotate(total_qty=Sum('quantity')).order_by('-total_qty')[:5]
+    
+    # Dead stock
+    dead_stock = Product.objects.annotate(sold=Sum('order_items__quantity')).filter(sold__isnull=True).order_by('-stock')[:5]
+    
+    context = {
+        'thirty_day_sales': thirty_day_sales,
+        'thirty_day_aov': thirty_day_aov,
+        'thirty_day_profit': thirty_day_profit,
+        'seven_day_sales': seven_day_sales,
+        'seven_day_aov': seven_day_aov,
+        'seven_day_profit': seven_day_profit,
+        'top_selling_skus': top_selling_skus,
+        'fastest_categories': fastest_categories,
+        'dead_stock': dead_stock,
+    }
+    return render(request, 'admin_panel/analytics.html', context)
+
+@staff_member_required
+def settings_view(request):
+    return render(request, 'admin_panel/settings.html')

@@ -31,16 +31,16 @@
                 <br><span style="font-size: 0.8rem; color: var(--text-muted);">{{ item.variant.size }} / {{ item.variant.color }}</span>
               {% endif %}
             </td>
-            <td>${{ item.price }}</td>
+            <td>PKR {{ item.price }}</td>
             <td>x{{ item.quantity }}</td>
-            <td style="font-weight: 600;">${{ item.get_cost|floatformat:2 }}</td>
+            <td style="font-weight: 600;">PKR {{ item.get_cost|floatformat:2 }}</td>
           </tr>
         {% endfor %}
       </tbody>
       <tfoot>
         <tr>
           <td colspan="3" style="text-align: right; padding: 1rem; color: var(--text-muted);">Grand Total:</td>
-          <td style="font-size: 1.1rem; font-weight: 700; color: var(--success); padding: 1rem;">${{ order.get_total_cost|floatformat:2 }}</td>
+          <td style="font-size: 1.1rem; font-weight: 700; color: var(--success); padding: 1rem;">PKR {{ order.get_total_cost|floatformat:2 }}</td>
         </tr>
       </tfoot>
     </table>

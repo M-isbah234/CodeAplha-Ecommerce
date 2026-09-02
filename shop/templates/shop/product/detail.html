@@ -85,7 +85,7 @@
     </div>
 
     <div style="font-size: 2rem; font-weight: 700; color: var(--emerald-accent);">
-      ${{ product.price }}
+      PKR {{ product.price }}
     </div>
 
     <div style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.7; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); padding: 1.25rem 0;">
@@ -107,7 +107,7 @@
                 {% if variant.size %}{{ variant.size }}{% endif %}
                 {% if variant.size and variant.color %} / {% endif %}
                 {% if variant.color %}{{ variant.color }}{% endif %}
-                {% if variant.price_modifier > 0 %} (+${{ variant.price_modifier }}){% endif %}
+                {% if variant.price_modifier > 0 %} (+PKR {{ variant.price_modifier }}){% endif %}
               </option>
             {% endfor %}
           </select>

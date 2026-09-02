@@ -78,7 +78,7 @@ class OrderAdmin(admin.ModelAdmin):
     
     def order_total(self, obj):
         return obj.get_total_cost()
-    order_total.short_description = 'Total ($)'
+    order_total.short_description = 'Total (PKR)'
 
 
 @admin.register(Review)

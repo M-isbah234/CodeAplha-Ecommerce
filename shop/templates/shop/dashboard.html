@@ -589,7 +589,7 @@
         <section class="kpi-row">
           <div class="kpi-card">
             <span class="kpi-title">Total Sales</span>
-            <span class="kpi-value">${{ total_sales|floatformat:2 }}</span>
+            <span class="kpi-value">PKR {{ total_sales|floatformat:2 }}</span>
             <span class="kpi-trend up">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polygon points="17 6 23 6 23 12"/></svg>
               +12.4%
@@ -605,7 +605,7 @@
           </div>
           <div class="kpi-card">
             <span class="kpi-title">Monthly Expenses</span>
-            <span class="kpi-value">${{ monthly_expenses|floatformat:2 }}</span>
+            <span class="kpi-value">PKR {{ monthly_expenses|floatformat:2 }}</span>
             <span class="kpi-trend down">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polygon points="17 18 23 18 23 12"/></svg>
               -2.1%
@@ -613,7 +613,7 @@
           </div>
           <div class="kpi-card">
             <span class="kpi-title">Net Profit</span>
-            <span class="kpi-value">${{ net_profit|floatformat:2 }}</span>
+            <span class="kpi-value">PKR {{ net_profit|floatformat:2 }}</span>
             <span class="kpi-trend up">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polygon points="17 6 23 6 23 12"/></svg>
               +18.3%
@@ -670,7 +670,7 @@
                         <td style="font-family: monospace; font-weight: 600;">#0022{{ order.id }}</td>
                         <td>{{ order.first_name }} {{ order.last_name }}</td>
                         <td>{{ order.created|date:"Y-m-d" }}</td>
-                        <td style="font-weight: 600;">${{ order.get_total_cost|floatformat:2 }}</td>
+                        <td style="font-weight: 600;">PKR {{ order.get_total_cost|floatformat:2 }}</td>
                         <td>
                           {% if order.id|divisibleby:2 %}
                             <span class="status-pill shipped">Shipped</span>
@@ -753,9 +753,9 @@
               <div class="chart-column">
                 <div class="chart-bars">
                   <!-- Sales Bar (White) -->
-                  <div class="chart-bar sales" style="height: {{ item.sales_pct }}%;" data-val="${{ item.sales|floatformat:2 }}"></div>
+                  <div class="chart-bar sales" style="height: {{ item.sales_pct }}%;" data-val="PKR {{ item.sales|floatformat:2 }}"></div>
                   <!-- Expenses Bar (Blue) -->
-                  <div class="chart-bar expenses" style="height: {{ item.expenses_pct }}%;" data-val="${{ item.expenses|floatformat:2 }}"></div>
+                  <div class="chart-bar expenses" style="height: {{ item.expenses_pct }}%;" data-val="PKR {{ item.expenses|floatformat:2 }}"></div>
                 </div>
                 <span class="chart-label">{{ item.day }}</span>
               </div>

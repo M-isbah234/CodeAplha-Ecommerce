@@ -48,7 +48,7 @@
               <tr style="border-bottom: 1px solid var(--border-color);">
                 <td style="padding: 1rem 0; font-weight: 600;">#{{ order.id }}</td>
                 <td style="padding: 1rem 0;">{{ order.created|date:"M d, Y" }}</td>
-                <td style="padding: 1rem 0;">${{ order.get_total_cost }}</td>
+                <td style="padding: 1rem 0;">PKR {{ order.get_total_cost }}</td>
                 <td style="padding: 1rem 0;">
                   {% if order.paid %}
                     <span style="color: var(--emerald-accent); font-weight: 600;">Paid</span>

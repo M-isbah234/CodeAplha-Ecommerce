@@ -1,0 +1,88 @@
+{% extends 'admin_panel/base.html' %}
+
+{% block title %}Analytics | Admin{% endblock %}
+{% block breadcrumbs %}Analytics{% endblock %}
+
+{% block content %}
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+  <!-- Left Column -->
+  <div class="card" style="background-color: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem;">
+    <h2 style="color: var(--text-main); margin-bottom: 1.5rem;">Revenue Metrics</h2>
+    
+    <h4 style="color: var(--text-muted); margin-bottom: 0.5rem;">Last 30 Days</h4>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem;">
+      <div style="padding: 1rem; background: var(--bg-hover); border-radius: var(--radius);">
+        <div style="font-size: 0.8rem; color: var(--text-muted);">Gross Sales</div>
+        <div style="font-size: 1.25rem; font-weight: 700; color: var(--text-main);">PKR {{ thirty_day_sales|floatformat:2 }}</div>
+      </div>
+      <div style="padding: 1rem; background: var(--bg-hover); border-radius: var(--radius);">
+        <div style="font-size: 0.8rem; color: var(--text-muted);">Net Profit (Est.)</div>
+        <div style="font-size: 1.25rem; font-weight: 700; color: #10b981;">PKR {{ thirty_day_profit|floatformat:2 }}</div>
+      </div>
+      <div style="padding: 1rem; background: var(--bg-hover); border-radius: var(--radius);">
+        <div style="font-size: 0.8rem; color: var(--text-muted);">Avg Order Value</div>
+        <div style="font-size: 1.25rem; font-weight: 700; color: var(--text-main);">PKR {{ thirty_day_aov|floatformat:2 }}</div>
+      </div>
+    </div>
+    
+    <h4 style="color: var(--text-muted); margin-bottom: 0.5rem;">Last 7 Days</h4>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+      <div style="padding: 1rem; background: var(--bg-hover); border-radius: var(--radius);">
+        <div style="font-size: 0.8rem; color: var(--text-muted);">Gross Sales</div>
+        <div style="font-size: 1.25rem; font-weight: 700; color: var(--text-main);">PKR {{ seven_day_sales|floatformat:2 }}</div>
+      </div>
+      <div style="padding: 1rem; background: var(--bg-hover); border-radius: var(--radius);">
+        <div style="font-size: 0.8rem; color: var(--text-muted);">Net Profit (Est.)</div>
+        <div style="font-size: 1.25rem; font-weight: 700; color: #10b981;">PKR {{ seven_day_profit|floatformat:2 }}</div>
+      </div>
+      <div style="padding: 1rem; background: var(--bg-hover); border-radius: var(--radius);">
+        <div style="font-size: 0.8rem; color: var(--text-muted);">Avg Order Value</div>
+        <div style="font-size: 1.25rem; font-weight: 700; color: var(--text-main);">PKR {{ seven_day_aov|floatformat:2 }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Column -->
+  <div style="display: flex; flex-direction: column; gap: 2rem;">
+    <div class="card" style="background-color: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem;">
+      <h2 style="color: var(--text-main); margin-bottom: 1.5rem;">Inventory Insights</h2>
+      
+      <h4 style="color: var(--text-muted); margin-bottom: 0.5rem;">Top Selling SKUs</h4>
+      <ul style="list-style: none; padding: 0; margin-bottom: 1.5rem;">
+        {% for sku in top_selling_skus %}
+          <li style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--border);">
+            <span style="color: var(--text-main);">{{ sku.product__name }}</span>
+            <span style="font-weight: 600; color: var(--text-muted);">{{ sku.total_qty }} units</span>
+          </li>
+        {% empty %}
+          <li style="color: var(--text-muted);">No data available.</li>
+        {% endfor %}
+      </ul>
+      
+      <h4 style="color: var(--text-muted); margin-bottom: 0.5rem;">Fastest Moving Categories</h4>
+      <ul style="list-style: none; padding: 0; margin-bottom: 1.5rem;">
+        {% for cat in fastest_categories %}
+          <li style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--border);">
+            <span style="color: var(--text-main);">{{ cat.product__category__name }}</span>
+            <span style="font-weight: 600; color: var(--text-muted);">{{ cat.total_qty }} items sold</span>
+          </li>
+        {% empty %}
+          <li style="color: var(--text-muted);">No data available.</li>
+        {% endfor %}
+      </ul>
+      
+      <h4 style="color: var(--text-muted); margin-bottom: 0.5rem;">Dead Stock (0 Sales)</h4>
+      <ul style="list-style: none; padding: 0;">
+        {% for product in dead_stock %}
+          <li style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--border);">
+            <span style="color: #ef4444;">{{ product.name }}</span>
+            <span style="font-weight: 600; color: var(--text-muted);">{{ product.stock }} in stock</span>
+          </li>
+        {% empty %}
+          <li style="color: var(--text-muted);">No dead stock found!</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

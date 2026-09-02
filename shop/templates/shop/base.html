@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}ApexMarket | Premium E-Commerce Store{% endblock %}</title>
   <meta name="description" content="Discover premium products at ApexMarket. Fast shipping and smooth checkout experience.">
-  <link rel="stylesheet" href="{% static 'shop/css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'shop/css/style.css' %}?v=2">
   <style>
     /* Autocomplete Dropdown Styles */
     .autocomplete-results {
@@ -64,6 +64,12 @@
 
       <!-- User Nav & Cart -->
       <div class="nav-actions">
+        <button id="theme-toggle" class="btn btn-secondary" style="padding: 0.4rem; border-radius: 50%; margin-right: 0.5rem;" title="Toggle Theme">
+          <svg id="theme-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+
         <a href="{% url 'shop:cart_detail' %}" class="cart-btn" id="cart-badge-link" title="Shopping Cart">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
           <span class="cart-badge" id="cart-total">{{ cart|length }}</span>
@@ -73,9 +79,6 @@
           {% if user.is_authenticated %}
             <span style="font-size: 0.9rem; color: var(--text-muted);">Hi, <strong style="color: var(--text-main);">{{ user.username }}</strong></span>
             <a href="{% url 'accounts:dashboard' %}" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">My Account</a>
-            {% if user.is_staff %}
-            <a href="{% url 'admin_panel:dashboard' %}" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">Admin Panel</a>
-            {% endif %}
             <a href="{% url 'accounts:logout' %}" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">Logout</a>
           {% else %}
             <a href="{% url 'accounts:login' %}" class="login-btn-link" style="font-size: 0.9rem; font-weight: 500; color: var(--text-main); margin-right: 0.5rem; transition: var(--transition-fast);">Login</a>
@@ -109,5 +112,30 @@
   </footer>
 
   <script src="{% static 'shop/js/main.js' %}"></script>
+  <script>
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    const themeIcon = document.getElementById('theme-icon');
+    
+    const currentTheme = localStorage.getItem('theme') || 'dark';
+    if (currentTheme === 'light') {
+      document.body.setAttribute('data-theme', 'light');
+      themeIcon.innerHTML = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
+    }
+
+    if (themeToggleBtn) {
+      themeToggleBtn.addEventListener('click', () => {
+        let theme = document.body.getAttribute('data-theme');
+        if (theme === 'light') {
+          document.body.removeAttribute('data-theme');
+          localStorage.setItem('theme', 'dark');
+          themeIcon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
+        } else {
+          document.body.setAttribute('data-theme', 'light');
+          localStorage.setItem('theme', 'light');
+          themeIcon.innerHTML = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
+        }
+      });
+    }
+  </script>
 </body>
 </html>

@@ -15,4 +15,7 @@ urlpatterns = [
     
     path('categories/', views.category_list, name='category_list'),
     path('categories/add/', views.category_add, name='category_add'),
+    
+    path('analytics/', views.analytics_view, name='analytics'),
+    path('settings/', views.settings_view, name='settings'),
 ]

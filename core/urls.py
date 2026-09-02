@@ -19,11 +19,26 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
-urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('control-panel/', include('admin_panel.urls', namespace='admin_panel')),
+import os
+
+urlpatterns = []
+
+service_type = os.environ.get('SERVICE_TYPE', 'all')
+
+if service_type in ['admin', 'all']:
+    urlpatterns += [
+        path('admin/', admin.site.urls),
+        path('control-panel/', include('admin_panel.urls', namespace='admin_panel')),
+    ]
+
+if service_type in ['storefront', 'all']:
+    urlpatterns += [
+        path('', include('shop.urls', namespace='shop')),
+    ]
+
+# Accounts are needed by both
+urlpatterns += [
     path('accounts/', include('accounts.urls', namespace='accounts')),
-    path('', include('shop.urls', namespace='shop')),
 ]
 
 if settings.DEBUG:
