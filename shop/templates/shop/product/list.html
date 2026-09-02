@@ -8,36 +8,71 @@
 {% block content %}
 <div class="shop-layout">
 
-  <!-- Categories Sidebar -->
+  <!-- Sidebar -->
   <aside class="sidebar">
-    <h3 class="sidebar-title">CATEGORIES</h3>
-    <ul class="category-list">
-      <li>
-        <a href="{% url 'shop:product_list' %}" class="category-link {% if not category %}active{% endif %}">
-          All Products
-        </a>
-      </li>
-      {% for c in categories %}
-        {% if not c.parent %}
-          <li>
-            <a href="{{ c.get_absolute_url }}" class="category-link {% if category.slug == c.slug or category.parent.slug == c.slug %}active{% endif %}">
-              {{ c.name }}
-            </a>
-            {% if c.children.all %}
-              <ul class="subcategory-list">
-                {% for sub in c.children.all %}
-                  <li>
-                    <a href="{{ sub.get_absolute_url }}" class="subcategory-link {% if category.slug == sub.slug %}active{% endif %}">
-                      {{ sub.name }}
-                    </a>
-                  </li>
-                {% endfor %}
-              </ul>
-            {% endif %}
-          </li>
-        {% endif %}
-      {% endfor %}
-    </ul>
+    <form method="get" action="{% url 'shop:product_list' %}" id="filter-form">
+      {% if search_query %}
+      <input type="hidden" name="q" value="{{ search_query }}">
+      {% endif %}
+      
+      <h3 class="sidebar-title">CATEGORIES</h3>
+      <ul class="category-list">
+        <li>
+          <a href="{% url 'shop:product_list' %}" class="category-link {% if not category %}active{% endif %}">
+            All Products
+          </a>
+        </li>
+        {% for c in categories %}
+          {% if not c.parent %}
+            <li>
+              <a href="{{ c.get_absolute_url }}" class="category-link {% if category.slug == c.slug or category.parent.slug == c.slug %}active{% endif %}">
+                {{ c.name }}
+              </a>
+              {% if c.children.all %}
+                <ul class="subcategory-list">
+                  {% for sub in c.children.all %}
+                    <li>
+                      <a href="{{ sub.get_absolute_url }}" class="subcategory-link {% if category.slug == sub.slug %}active{% endif %}">
+                        {{ sub.name }}
+                      </a>
+                    </li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            </li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+
+      <hr style="border-color: var(--border-color); margin: 1.5rem 0;">
+
+      <h3 class="sidebar-title">FILTERS</h3>
+      
+      <div style="margin-bottom: 1rem;">
+        <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">Price Range</label>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <input type="number" name="min_price" class="form-input" placeholder="Min" value="{{ request.GET.min_price }}" style="padding: 0.5rem;">
+          <span style="color: var(--text-muted);">-</span>
+          <input type="number" name="max_price" class="form-input" placeholder="Max" value="{{ request.GET.max_price }}" style="padding: 0.5rem;">
+        </div>
+      </div>
+      
+      <div style="margin-bottom: 1.5rem;">
+        <label style="display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">Sort By</label>
+        <select name="sort_by" class="form-select" style="width: 100%; padding: 0.5rem;" onchange="document.getElementById('filter-form').submit();">
+          <option value="" {% if not request.GET.sort_by %}selected{% endif %}>Default Sorting</option>
+          <option value="price_asc" {% if request.GET.sort_by == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+          <option value="price_desc" {% if request.GET.sort_by == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+          <option value="newest" {% if request.GET.sort_by == 'newest' %}selected{% endif %}>Newest Arrivals</option>
+        </select>
+      </div>
+      
+      <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.5rem;">Apply Filters</button>
+      
+      {% if request.GET.min_price or request.GET.max_price or request.GET.sort_by %}
+        <a href="{% url 'shop:product_list' %}{% if category %}?category={{ category.slug }}{% endif %}" class="btn btn-secondary" style="width: 100%; padding: 0.5rem; margin-top: 0.5rem; text-align: center;">Clear Filters</a>
+      {% endif %}
+    </form>
   </aside>
 
   <!-- Products Grid Section -->
@@ -81,18 +116,12 @@
         {% endfor %}
       </div>
       
-      <!-- Pagination control (three dots, middle selected) -->
-      <div class="pagination-dots">
-        <span class="dot"></span>
-        <span class="dot active"></span>
-        <span class="dot"></span>
-      </div>
     {% else %}
       <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 3rem; text-align: center; color: var(--text-muted);">
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 1rem;"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
         <h3>No products found</h3>
-        <p style="margin-top: 0.5rem;">Try adjusting your search query or selecting a different category.</p>
-        <a href="{% url 'shop:product_list' %}" class="btn btn-primary" style="margin-top: 1.5rem;">Back to Catalog</a>
+        <p style="margin-top: 0.5rem;">Try adjusting your filters or search query.</p>
+        <a href="{% url 'shop:product_list' %}" class="btn btn-primary" style="margin-top: 1.5rem;">Reset All</a>
       </div>
     {% endif %}
   </section>

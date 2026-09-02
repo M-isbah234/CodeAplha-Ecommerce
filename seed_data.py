@@ -6,14 +6,24 @@ from datetime import datetime
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
 django.setup()
 
-from shop.models import Category, Product
+from shop.models import Category, Product, ProductVariant, Review, ProductImage
+from django.contrib.auth.models import User
 
 # Delete existing data to start fresh
-print("Deleting existing products and categories...")
+print("Deleting existing products, categories, variants, and reviews...")
+ProductVariant.objects.all().delete()
+Review.objects.all().delete()
+ProductImage.objects.all().delete()
 Product.objects.all().delete()
 Category.objects.all().delete()
 
-# Create Categories (including parents and subcategories)
+# Create Admin User if not exists
+if not User.objects.filter(username='admin').exists():
+    User.objects.create_superuser('admin', 'admin@example.com', 'admin')
+    print("Created superuser 'admin' with password 'admin'")
+admin_user = User.objects.get(username='admin')
+
+# Create Categories
 print("Creating categories...")
 
 # Parent Categories
@@ -35,13 +45,12 @@ gadgets = Category.objects.create(name='Gadgets', slug='gadgets', parent=electro
 
 print("Categories seeded successfully!")
 
-# Setup image directories based on model's upload_to='products/%Y/%m/%d'
+# Setup image directories
 today = datetime.now()
 relative_upload_path = f"products/{today.strftime('%Y/%m/%d')}"
 target_media_dir = os.path.join("media", "products", today.strftime("%Y"), today.strftime("%m"), today.strftime("%d"))
 os.makedirs(target_media_dir, exist_ok=True)
 
-# Copy cropped images to the correct media path and prepare paths
 src_products_dir = os.path.join("media", "products")
 
 product_images = {
@@ -58,7 +67,6 @@ for img_name in product_images.keys():
     dst_file = os.path.join(target_media_dir, img_name)
     if os.path.exists(src_file) and not os.path.exists(dst_file):
         shutil.copy(src_file, dst_file)
-        print(f"Copied {img_name} to {dst_file}")
 
 # Seed products
 products_data = [
@@ -88,7 +96,7 @@ products_data = [
         'slug': 'aesthetic-minimalist-hoodie',
         'description': 'A comfortable black minimalist hoodie made with organic materials. Offers a modern, clean, relaxed silhouette.',
         'price': 79.99,
-        'stock': 12,
+        'stock': 3, # Low stock
         'image': f"{relative_upload_path}/aesthetic_minimalist_hoodie.jpg",
         'available': True,
     },
@@ -124,15 +132,24 @@ products_data = [
     },
 ]
 
-print("Seeding products...")
+print("Seeding products, variants, and reviews...")
 for prod_data in products_data:
-    p, created = Product.objects.get_or_create(
-        slug=prod_data['slug'],
-        defaults=prod_data
+    p = Product.objects.create(**prod_data)
+    
+    # Add some variants
+    if p.slug == 'indigo-katana-graphic-tee':
+        ProductVariant.objects.create(product=p, size='M', color='Blue', stock=10)
+        ProductVariant.objects.create(product=p, size='L', color='Blue', stock=2) # Low stock alert trigger
+    elif p.slug == 'aesthetic-minimalist-hoodie':
+        ProductVariant.objects.create(product=p, size='S', color='Black', stock=5)
+        ProductVariant.objects.create(product=p, size='L', color='Black', stock=12)
+        
+    # Add dummy reviews
+    Review.objects.create(
+        product=p,
+        user=admin_user,
+        rating=5 if p.price > 50 else 4,
+        text="Great quality and fast shipping. Highly recommend this product!"
     )
-    if created:
-        print(f"Created product: {p.name}")
-    else:
-        print(f"Product already exists: {p.name}")
 
 print("Seeding completed successfully!")

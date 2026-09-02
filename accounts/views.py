@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import UserRegistrationForm
+from shop.models import Order
 
 def register(request):
     if request.user.is_authenticated:
@@ -49,3 +51,18 @@ def user_logout(request):
     logout(request)
     messages.info(request, "You have successfully logged out.")
     return redirect('shop:product_list')
+
+
+@login_required
+def dashboard(request):
+    orders = Order.objects.filter(user=request.user).order_by('-created')
+    
+    if request.method == 'POST':
+        request.user.first_name = request.POST.get('first_name', request.user.first_name)
+        request.user.last_name = request.POST.get('last_name', request.user.last_name)
+        request.user.email = request.POST.get('email', request.user.email)
+        request.user.save()
+        messages.success(request, 'Your profile has been updated.')
+        return redirect('accounts:dashboard')
+        
+    return render(request, 'accounts/dashboard.html', {'orders': orders})

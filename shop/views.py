@@ -2,16 +2,26 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Q
-from .models import Category, Product, Order, OrderItem
+from django.db.models import Q, Avg
+from django.http import JsonResponse
+from django.utils.text import slugify
+import datetime
+
+from .models import Category, Product, Order, OrderItem, ProductVariant, Review, Wishlist
 from .cart import Cart
 from .forms import CartAddProductForm, OrderCreateForm
+
 
 def product_list(request, category_slug=None):
     category = None
     categories = Category.objects.all()
     products = Product.objects.filter(available=True)
+    
+    # Advanced Filtering
     search_query = request.GET.get('q', '').strip()
+    min_price = request.GET.get('min_price')
+    max_price = request.GET.get('max_price')
+    sort_by = request.GET.get('sort_by')
 
     if category_slug:
         category = get_object_or_404(Category, slug=category_slug)
@@ -21,6 +31,27 @@ def product_list(request, category_slug=None):
         products = products.filter(
             Q(name__icontains=search_query) | Q(description__icontains=search_query)
         )
+        
+    if min_price:
+        try:
+            products = products.filter(price__gte=float(min_price))
+        except ValueError:
+            pass
+            
+    if max_price:
+        try:
+            products = products.filter(price__lte=float(max_price))
+        except ValueError:
+            pass
+            
+    if sort_by == 'price_asc':
+        products = products.order_by('price')
+    elif sort_by == 'price_desc':
+        products = products.order_by('-price')
+    elif sort_by == 'newest':
+        products = products.order_by('-created')
+    else:
+        products = products.order_by('name')
 
     return render(request, 'shop/product/list.html', {
         'category': category,
@@ -30,12 +61,35 @@ def product_list(request, category_slug=None):
     })
 
 
+def search_autocomplete(request):
+    query = request.GET.get('q', '').strip()
+    if query:
+        products = Product.objects.filter(
+            Q(name__icontains=query) | Q(category__name__icontains=query),
+            available=True
+        )[:5]
+        results = [{'name': p.name, 'url': p.get_absolute_url()} for p in products]
+        return JsonResponse({'results': results})
+    return JsonResponse({'results': []})
+
+
 def product_detail(request, id, slug):
     product = get_object_or_404(Product, id=id, slug=slug, available=True)
     cart_product_form = CartAddProductForm()
+    reviews = product.reviews.all()
+    avg_rating = reviews.aggregate(Avg('rating'))['rating__avg'] or 0
+    
+    in_wishlist = False
+    if request.user.is_authenticated:
+        wishlist, created = Wishlist.objects.get_or_create(user=request.user)
+        in_wishlist = product in wishlist.products.all()
+
     return render(request, 'shop/product/detail.html', {
         'product': product,
-        'cart_product_form': cart_product_form
+        'cart_product_form': cart_product_form,
+        'reviews': reviews,
+        'avg_rating': round(avg_rating, 1),
+        'in_wishlist': in_wishlist,
     })
 
 
@@ -44,13 +98,29 @@ def cart_add(request, product_id):
     cart = Cart(request)
     product = get_object_or_404(Product, id=product_id)
     form = CartAddProductForm(request.POST)
+    
+    variant_id = request.POST.get('variant_id')
+    variant = None
+    if variant_id:
+        variant = get_object_or_404(ProductVariant, id=variant_id, product=product)
+        
     if form.is_valid():
         cd = form.cleaned_data
+        
+        # Determine price to use based on variant if selected, else base product
+        # In a real app we'd adjust Cart.add to handle variants properly.
+        # For simplicity without changing the Cart class drastically, we can store variant ID in session.
+        # However, to avoid breaking `cart.py`, we will skip variant handling in the cart backend logic unless requested.
+        
         cart.add(
             product=product,
             quantity=cd['quantity'],
             override_quantity=cd['override']
         )
+        
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'status': 'success', 'cart_total_items': len(cart)})
+            
         messages.success(request, f"Added {product.name} to your shopping cart.")
     return redirect('shop:cart_detail')
 
@@ -60,6 +130,10 @@ def cart_remove(request, product_id):
     cart = Cart(request)
     product = get_object_or_404(Product, id=product_id)
     cart.remove(product)
+    
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({'status': 'success', 'cart_total_items': len(cart), 'cart_total_price': cart.get_total_price()})
+        
     messages.info(request, f"Removed {product.name} from your cart.")
     return redirect('shop:cart_detail')
 
@@ -87,6 +161,7 @@ def order_create(request):
             order = form.save(commit=False)
             order.user = request.user
             order.paid = True  # Simulated instant payment success
+            order.status = 'Processing'
             order.save()
             for item in cart:
                 OrderItem.objects.create(
@@ -95,7 +170,6 @@ def order_create(request):
                     price=item['price'],
                     quantity=item['quantity']
                 )
-            # Clear cart session
             cart.clear()
             return render(request, 'shop/order/created.html', {'order': order})
     else:
@@ -108,16 +182,68 @@ def order_create(request):
     return render(request, 'shop/order/create.html', {'cart': cart, 'form': form})
 
 
-from django.utils.text import slugify
+@login_required
+@require_POST
+def add_review(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    rating = request.POST.get('rating')
+    text = request.POST.get('text', '').strip()
+    
+    if rating:
+        try:
+            rating = int(rating)
+            if 1 <= rating <= 5:
+                Review.objects.update_or_create(
+                    product=product,
+                    user=request.user,
+                    defaults={'rating': rating, 'text': text}
+                )
+                messages.success(request, "Your review has been submitted!")
+        except ValueError:
+            messages.error(request, "Invalid rating.")
+            
+    return redirect(product.get_absolute_url())
+
+
+@login_required
+def toggle_wishlist(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    wishlist, created = Wishlist.objects.get_or_create(user=request.user)
+    
+    if product in wishlist.products.all():
+        wishlist.products.remove(product)
+        status = 'removed'
+        msg = f"Removed {product.name} from wishlist."
+    else:
+        wishlist.products.add(product)
+        status = 'added'
+        msg = f"Added {product.name} to wishlist."
+        
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({'status': status, 'message': msg})
+        
+    messages.info(request, msg)
+    return redirect(request.META.get('HTTP_REFERER', 'shop:product_list'))
+
+
+@login_required
+def wishlist_detail(request):
+    wishlist, created = Wishlist.objects.get_or_create(user=request.user)
+    return render(request, 'shop/wishlist/detail.html', {'wishlist': wishlist})
+
 
 @login_required
 def admin_dashboard(request):
+    if not request.user.is_staff:
+        messages.error(request, "You do not have permission to view this page.")
+        return redirect('shop:product_list')
+        
     # Fetch all orders to calculate KPI
     orders = Order.objects.all().order_by('-created')
     total_sales = sum(order.get_total_cost() for order in orders)
-    active_orders_count = orders.filter(paid=True).count()
+    active_orders_count = orders.filter(paid=True, status__in=['Pending', 'Processing', 'Shipped']).count()
     
-    # Simulating expenses (e.g. fixed warehouse/operations + dynamic shipping)
+    # Simulating expenses
     monthly_expenses = 100.00 + float(total_sales) * 0.15
     net_profit = float(total_sales) - monthly_expenses
     
@@ -133,7 +259,6 @@ def admin_dashboard(request):
             category = get_object_or_404(Category, id=category_id)
             slug = slugify(name)
             
-            # Simple check to avoid duplicate slug crash
             base_slug = slug
             counter = 1
             while Product.objects.filter(slug=slug).exists():
@@ -145,7 +270,7 @@ def admin_dashboard(request):
                 name=name,
                 slug=slug,
                 price=price,
-                stock=50, # default stock
+                stock=50,
                 image=image,
                 available=True
             )
@@ -154,16 +279,16 @@ def admin_dashboard(request):
         else:
             messages.error(request, "Please fill out all product details.")
 
-    # Simulated last 7 days sales vs expenses for chart
-    import datetime
+    # Inventory alerts
+    low_stock_products = Product.objects.filter(stock__lt=5)
+    low_stock_variants = ProductVariant.objects.filter(stock__lt=5)
+
     chart_data = []
     today = datetime.date.today()
     for i in range(6, -1, -1):
         day = today - datetime.timedelta(days=i)
-        # Calculate daily sales from orders placed on this day
         day_orders = orders.filter(created__date=day)
         day_sales = float(sum(order.get_total_cost() for order in day_orders))
-        # Simulated expense for that day
         day_expenses = 10.00 + day_sales * 0.10 if day_sales > 0 else 5.00
         chart_data.append({
             'day': day.strftime('%a'),
@@ -174,11 +299,13 @@ def admin_dashboard(request):
         })
 
     return render(request, 'shop/dashboard.html', {
-        'orders': orders[:8], # Show recent 8 orders
+        'orders': orders[:10], # Show more recent orders
         'total_sales': total_sales,
         'active_orders_count': active_orders_count,
         'monthly_expenses': monthly_expenses,
         'net_profit': net_profit,
         'categories': categories,
         'chart_data': chart_data,
+        'low_stock_products': low_stock_products,
+        'low_stock_variants': low_stock_variants,
     })

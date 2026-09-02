@@ -1,0 +1,85 @@
+{% extends "shop/base.html" %}
+
+{% block title %}My Dashboard | ApexMarket{% endblock %}
+
+{% block content %}
+<div class="shop-layout">
+  <aside class="sidebar" style="background: var(--bg-surface); padding: 1.5rem; border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+    <h3 style="margin-bottom: 1rem;">Profile Info</h3>
+    <form method="post">
+      {% csrf_token %}
+      <div style="margin-bottom: 1rem;">
+        <label class="form-label">First Name</label>
+        <input type="text" name="first_name" value="{{ user.first_name }}" class="form-input">
+      </div>
+      <div style="margin-bottom: 1rem;">
+        <label class="form-label">Last Name</label>
+        <input type="text" name="last_name" value="{{ user.last_name }}" class="form-input">
+      </div>
+      <div style="margin-bottom: 1.5rem;">
+        <label class="form-label">Email</label>
+        <input type="email" name="email" value="{{ user.email }}" class="form-input">
+      </div>
+      <button type="submit" class="btn btn-primary" style="width: 100%;">Update Profile</button>
+    </form>
+    
+    <hr style="border-color: var(--border-color); margin: 1.5rem 0;">
+    <a href="{% url 'shop:wishlist_detail' %}" class="btn btn-secondary" style="width: 100%; text-align: center; margin-bottom: 0.5rem;">My Wishlist</a>
+    <a href="{% url 'accounts:logout' %}" class="btn btn-secondary" style="width: 100%; text-align: center; color: var(--danger-color);">Logout</a>
+  </aside>
+
+  <section class="products-section" style="background: var(--bg-surface); padding: 2rem; border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+    <h2 style="margin-bottom: 1.5rem; font-size: 1.5rem;">Order History</h2>
+    
+    {% if orders %}
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; text-align: left; border-collapse: collapse;">
+          <thead>
+            <tr style="border-bottom: 2px solid var(--border-color); color: var(--text-muted);">
+              <th style="padding: 1rem 0;">Order ID</th>
+              <th style="padding: 1rem 0;">Date</th>
+              <th style="padding: 1rem 0;">Total</th>
+              <th style="padding: 1rem 0;">Payment</th>
+              <th style="padding: 1rem 0;">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in orders %}
+              <tr style="border-bottom: 1px solid var(--border-color);">
+                <td style="padding: 1rem 0; font-weight: 600;">#{{ order.id }}</td>
+                <td style="padding: 1rem 0;">{{ order.created|date:"M d, Y" }}</td>
+                <td style="padding: 1rem 0;">${{ order.get_total_cost }}</td>
+                <td style="padding: 1rem 0;">
+                  {% if order.paid %}
+                    <span style="color: var(--emerald-accent); font-weight: 600;">Paid</span>
+                  {% else %}
+                    <span style="color: var(--text-muted);">Unpaid</span>
+                  {% endif %}
+                </td>
+                <td style="padding: 1rem 0;">
+                  <span style="padding: 0.25rem 0.5rem; border-radius: var(--radius-sm); font-size: 0.85rem; font-weight: 600;
+                    {% if order.status == 'Pending' %}background: #fef08a; color: #854d0e;
+                    {% elif order.status == 'Processing' %}background: #bfdbfe; color: #1e40af;
+                    {% elif order.status == 'Shipped' %}background: #e9d5ff; color: #6b21a8;
+                    {% elif order.status == 'Delivered' %}background: #bbf7d0; color: #166534;
+                    {% elif order.status == 'Cancelled' %}background: #fecaca; color: #991b1b;
+                    {% endif %}
+                  ">
+                    {{ order.status }}
+                  </span>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div style="text-align: center; padding: 3rem 0; color: var(--text-muted);">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 1rem;"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <p>You haven't placed any orders yet.</p>
+        <a href="{% url 'shop:product_list' %}" class="btn btn-primary" style="margin-top: 1rem;">Start Shopping</a>
+      </div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

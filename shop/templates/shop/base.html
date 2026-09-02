@@ -7,6 +7,41 @@
   <title>{% block title %}ApexMarket | Premium E-Commerce Store{% endblock %}</title>
   <meta name="description" content="Discover premium products at ApexMarket. Fast shipping and smooth checkout experience.">
   <link rel="stylesheet" href="{% static 'shop/css/style.css' %}">
+  <style>
+    /* Autocomplete Dropdown Styles */
+    .autocomplete-results {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-top: none;
+      border-radius: 0 0 var(--radius-md) var(--radius-md);
+      box-shadow: var(--shadow-md);
+      z-index: 1000;
+      max-height: 300px;
+      overflow-y: auto;
+      display: none;
+    }
+    .autocomplete-results.active {
+      display: block;
+    }
+    .autocomplete-item {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-main);
+      display: block;
+      text-decoration: none;
+      transition: background var(--transition-fast);
+    }
+    .autocomplete-item:hover {
+      background: rgba(var(--primary-rgb), 0.05);
+    }
+    .autocomplete-item:last-child {
+      border-bottom: none;
+    }
+  </style>
 </head>
 <body>
 
@@ -19,24 +54,28 @@
       </a>
 
       <!-- Search Bar -->
-      <div class="search-bar">
+      <div class="search-bar" style="position: relative;">
         <form action="{% url 'shop:product_list' %}" method="get" class="search-form">
           <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-          <input type="text" name="q" class="search-input" placeholder="Search products..." value="{{ search_query|default:'' }}">
+          <input type="text" name="q" id="search-input" class="search-input" placeholder="Search products..." value="{{ search_query|default:'' }}" autocomplete="off">
         </form>
+        <div id="autocomplete-results" class="autocomplete-results"></div>
       </div>
 
       <!-- User Nav & Cart -->
       <div class="nav-actions">
         <a href="{% url 'shop:cart_detail' %}" class="cart-btn" id="cart-badge-link" title="Shopping Cart">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
-          <span class="cart-badge">{{ cart|length }}</span>
+          <span class="cart-badge" id="cart-total">{{ cart|length }}</span>
         </a>
 
         <div class="auth-btns">
           {% if user.is_authenticated %}
             <span style="font-size: 0.9rem; color: var(--text-muted);">Hi, <strong style="color: var(--text-main);">{{ user.username }}</strong></span>
+            <a href="{% url 'accounts:dashboard' %}" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">My Account</a>
+            {% if user.is_staff %}
             <a href="{% url 'shop:admin_dashboard' %}" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">Admin Panel</a>
+            {% endif %}
             <a href="{% url 'accounts:logout' %}" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">Logout</a>
           {% else %}
             <a href="{% url 'accounts:login' %}" class="login-btn-link" style="font-size: 0.9rem; font-weight: 500; color: var(--text-main); margin-right: 0.5rem; transition: var(--transition-fast);">Login</a>
