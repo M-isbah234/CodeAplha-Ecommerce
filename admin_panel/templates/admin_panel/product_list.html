@@ -1,0 +1,59 @@
+{% extends 'admin_panel/base.html' %}
+
+{% block title %}Products | Admin{% endblock %}
+{% block breadcrumbs %}Products{% endblock %}
+
+{% block content %}
+<div class="page-title">
+  <span>Product Management</span>
+  <a href="{% url 'admin_panel:product_add' %}" class="btn btn-primary">+ Add New Product</a>
+</div>
+
+<div class="card">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Image</th>
+        <th>Name</th>
+        <th>Category</th>
+        <th>Price</th>
+        <th>Stock</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for product in products %}
+        <tr>
+          <td>
+            {% if product.image %}
+              <img src="{{ product.image.url }}" alt="{{ product.name }}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;">
+            {% else %}
+              <div style="width: 40px; height: 40px; background: var(--bg-dark); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 0.6rem;">N/A</div>
+            {% endif %}
+          </td>
+          <td style="font-weight: 500;">{{ product.name }}</td>
+          <td style="color: var(--text-muted);">{{ product.category.name }}</td>
+          <td>${{ product.price }}</td>
+          <td>{{ product.stock }}</td>
+          <td>
+            {% if product.available %}
+              <span class="badge badge-success">Active</span>
+            {% else %}
+              <span class="badge badge-danger">Draft</span>
+            {% endif %}
+          </td>
+          <td>
+            <a href="{% url 'admin_panel:product_edit' product.id %}" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Edit</a>
+            <a href="{% url 'admin_panel:product_delete' product.id %}" class="btn btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.8rem; margin-left: 0.5rem;">Delete</a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="7" style="text-align: center; padding: 2rem; color: var(--text-muted);">No products found.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -9,7 +9,6 @@ urlpatterns = [
     path('cart/add/<int:product_id>/', views.cart_add, name='cart_add'),
     path('cart/remove/<int:product_id>/', views.cart_remove, name='cart_remove'),
     path('orders/create/', views.order_create, name='order_create'),
-    path('dashboard/', views.admin_dashboard, name='admin_dashboard'),
     
     # New features
     path('search-autocomplete/', views.search_autocomplete, name='search_autocomplete'),

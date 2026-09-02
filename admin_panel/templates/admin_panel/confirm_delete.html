@@ -1,0 +1,21 @@
+{% extends 'admin_panel/base.html' %}
+
+{% block title %}Confirm Deletion | Admin{% endblock %}
+{% block breadcrumbs %}Products / Delete{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 500px; margin: 0 auto; text-align: center;">
+  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--danger); margin-bottom: 1rem;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+  
+  <h2 style="margin-bottom: 1rem;">Confirm Deletion</h2>
+  <p style="margin-bottom: 2rem; color: var(--text-muted);">
+    Are you sure you want to delete <strong>{{ object.name }}</strong>? This action cannot be undone.
+  </p>
+  
+  <form method="post" style="display: flex; gap: 1rem; justify-content: center;">
+    {% csrf_token %}
+    <a href="javascript:history.back()" class="btn btn-secondary">Cancel</a>
+    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+  </form>
+</div>
+{% endblock %}

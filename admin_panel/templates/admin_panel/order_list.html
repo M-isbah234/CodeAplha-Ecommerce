@@ -1,0 +1,63 @@
+{% extends 'admin_panel/base.html' %}
+
+{% block title %}Orders | Admin{% endblock %}
+{% block breadcrumbs %}Orders{% endblock %}
+
+{% block content %}
+<div class="page-title">
+  <span>Order Management</span>
+</div>
+
+<div class="card">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Order ID</th>
+        <th>Date</th>
+        <th>Customer</th>
+        <th>Total</th>
+        <th>Payment</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for order in orders %}
+        <tr>
+          <td style="font-family: monospace; font-weight: 600;">#{{ order.id|stringformat:"05d" }}</td>
+          <td>{{ order.created|date:"Y-m-d H:i" }}</td>
+          <td>{{ order.first_name }} {{ order.last_name }}<br><span style="font-size: 0.8rem; color: var(--text-muted);">{{ order.email }}</span></td>
+          <td style="font-weight: 600;">${{ order.get_total_cost|floatformat:2 }}</td>
+          <td>
+            {% if order.paid %}
+              <span style="color: var(--success); font-weight: 500;">Paid</span>
+            {% else %}
+              <span style="color: var(--warning); font-weight: 500;">Unpaid</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if order.status == 'Pending' %}
+              <span class="badge badge-warning">Pending</span>
+            {% elif order.status == 'Processing' %}
+              <span class="badge badge-info">Processing</span>
+            {% elif order.status == 'Shipped' %}
+              <span class="badge badge-info">Shipped</span>
+            {% elif order.status == 'Delivered' %}
+              <span class="badge badge-success">Delivered</span>
+            {% elif order.status == 'Cancelled' %}
+              <span class="badge badge-danger">Cancelled</span>
+            {% endif %}
+          </td>
+          <td>
+            <a href="{% url 'admin_panel:order_detail' order.id %}" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">View Details</a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="7" style="text-align: center; padding: 2rem; color: var(--text-muted);">No orders found.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

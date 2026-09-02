@@ -1,0 +1,255 @@
+{% extends 'admin_panel/base.html' %}
+
+{% block title %}Dashboard | Admin{% endblock %}
+{% block breadcrumbs %}Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* KPI Row */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .kpi-card {
+      background-color: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .kpi-title {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.5rem;
+    }
+
+    .kpi-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .kpi-trend {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .kpi-trend.up {
+      color: #10b981;
+    }
+
+    .kpi-trend.down {
+      color: #ef4444;
+    }
+    
+    /* Bottom Chart Section */
+    .chart-section {
+      background-color: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .chart-legends {
+      display: flex;
+      gap: 1.5rem;
+      font-size: 0.85rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .legend-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+    }
+
+    .legend-sales { background-color: #ffffff; }
+    .legend-expenses { background-color: var(--primary); }
+
+    .bar-chart-container {
+      height: 250px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 0 1rem;
+      gap: 1.5rem;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+
+    .chart-column {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+      justify-content: flex-end;
+      gap: 0.5rem;
+    }
+
+    .chart-bars {
+      width: 100%;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 0.25rem;
+      height: 100%;
+    }
+
+    .chart-bar {
+      width: 24px;
+      border-radius: 4px 4px 0 0;
+      transition: height 0.5s ease-out;
+      position: relative;
+    }
+
+    .chart-bar:hover::after {
+      content: attr(data-val);
+      position: absolute;
+      top: -24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: var(--bg-dark);
+      color: #ffffff;
+      font-size: 0.75rem;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      white-space: nowrap;
+      z-index: 10;
+    }
+
+    .chart-bar.sales { background-color: #ffffff; }
+    .chart-bar.expenses { background-color: var(--primary); }
+    
+    .chart-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-title">
+  <span>Store Overview</span>
+  <a href="{% url 'admin_panel:product_add' %}" class="btn btn-primary">+ Add New Product</a>
+</div>
+
+<!-- KPI Cards -->
+<section class="kpi-row">
+  <div class="kpi-card">
+    <span class="kpi-title">Total Sales</span>
+    <span class="kpi-value">${{ total_sales|floatformat:2 }}</span>
+    <span class="kpi-trend up">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polygon points="17 6 23 6 23 12"/></svg>
+      +12.4%
+    </span>
+  </div>
+  <div class="kpi-card">
+    <span class="kpi-title">Active Orders</span>
+    <span class="kpi-value">{{ active_orders_count }}</span>
+    <span class="kpi-trend up">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polygon points="17 6 23 6 23 12"/></svg>
+      +4.8%
+    </span>
+  </div>
+  <div class="kpi-card">
+    <span class="kpi-title">Monthly Expenses</span>
+    <span class="kpi-value">${{ monthly_expenses|floatformat:2 }}</span>
+    <span class="kpi-trend down">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polygon points="17 18 23 18 23 12"/></svg>
+      -2.1%
+    </span>
+  </div>
+  <div class="kpi-card">
+    <span class="kpi-title">Net Profit</span>
+    <span class="kpi-value">${{ net_profit|floatformat:2 }}</span>
+    <span class="kpi-trend up">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polygon points="17 6 23 6 23 12"/></svg>
+      +18.3%
+    </span>
+  </div>
+</section>
+
+<!-- Inventory Alerts -->
+{% if low_stock_products or low_stock_variants %}
+<section class="card" style="border-color: rgba(239, 68, 68, 0.3); background-color: rgba(239, 68, 68, 0.05);">
+  <h3 style="color: var(--danger); font-size: 1.1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    Low Inventory Alerts
+  </h3>
+  <ul style="list-style: none; padding: 0;">
+    {% for p in low_stock_products %}
+    <li style="margin-bottom: 0.5rem; color: #fca5a5;">
+      <strong>{{ p.name }}</strong> (Base product) has only {{ p.stock }} left in stock!
+    </li>
+    {% endfor %}
+    {% for v in low_stock_variants %}
+    <li style="margin-bottom: 0.5rem; color: #fca5a5;">
+      <strong>{{ v.product.name }} - {{ v.size }}/{{ v.color }}</strong> has only {{ v.stock }} left in stock!
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+<!-- Bottom Section: Expense Graph -->
+<section class="chart-section">
+  <div class="chart-header">
+    <span style="font-weight: 700; font-size: 1.1rem; color: #ffffff;">Expense Graph</span>
+    <div class="chart-legends">
+      <div class="legend-item">
+        <span class="legend-color legend-sales"></span>
+        <span style="color: var(--text-muted);">Sales</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-color legend-expenses"></span>
+        <span style="color: var(--text-muted);">Expenses</span>
+      </div>
+      <span style="color: var(--text-muted); font-size: 0.85rem; margin-left: 1rem;">Sales vs. Expenses | Last 7 days</span>
+    </div>
+  </div>
+  
+  <div class="bar-chart-container">
+    {% for item in chart_data %}
+      <div class="chart-column">
+        <div class="chart-bars">
+          <!-- Sales Bar (White) -->
+          <div class="chart-bar sales" style="height: {{ item.sales_pct }}%;" data-val="${{ item.sales|floatformat:2 }}"></div>
+          <!-- Expenses Bar (Blue) -->
+          <div class="chart-bar expenses" style="height: {{ item.expenses_pct }}%;" data-val="${{ item.expenses|floatformat:2 }}"></div>
+        </div>
+        <span class="chart-label">{{ item.day }}</span>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends 'admin_panel/base.html' %}
+
+{% block title %}Order #{{ order.id|stringformat:"05d" }} | Admin{% endblock %}
+{% block breadcrumbs %}Orders / #{{ order.id|stringformat:"05d" }}{% endblock %}
+
+{% block content %}
+<div class="page-title">
+  <span>Order #{{ order.id|stringformat:"05d" }}</span>
+  <a href="{% url 'admin_panel:order_list' %}" class="btn btn-secondary">Back to Orders</a>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+  <!-- Order Items & Details -->
+  <div class="card">
+    <h3 style="margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border);">Order Items</h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Price</th>
+          <th>Quantity</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in order.items.all %}
+          <tr>
+            <td style="font-weight: 500;">
+              {{ item.product.name }}
+              {% if item.variant %}
+                <br><span style="font-size: 0.8rem; color: var(--text-muted);">{{ item.variant.size }} / {{ item.variant.color }}</span>
+              {% endif %}
+            </td>
+            <td>${{ item.price }}</td>
+            <td>x{{ item.quantity }}</td>
+            <td style="font-weight: 600;">${{ item.get_cost|floatformat:2 }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="3" style="text-align: right; padding: 1rem; color: var(--text-muted);">Grand Total:</td>
+          <td style="font-size: 1.1rem; font-weight: 700; color: var(--success); padding: 1rem;">${{ order.get_total_cost|floatformat:2 }}</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <!-- Order Info & Status Update -->
+  <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+    
+    <div class="card">
+      <h3 style="margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border);">Customer Details</h3>
+      <p style="margin-bottom: 0.5rem;"><strong style="color: var(--text-muted);">Name:</strong> {{ order.first_name }} {{ order.last_name }}</p>
+      <p style="margin-bottom: 0.5rem;"><strong style="color: var(--text-muted);">Email:</strong> {{ order.email }}</p>
+      <p style="margin-bottom: 0.5rem;"><strong style="color: var(--text-muted);">Date:</strong> {{ order.created|date:"Y-m-d H:i" }}</p>
+      
+      <h4 style="margin: 1.5rem 0 0.5rem; color: var(--text-muted);">Shipping Address</h4>
+      <p>{{ order.address }}</p>
+      <p>{{ order.city }}, {{ order.postal_code }}</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border);">Update Status</h3>
+      
+      <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+          <label>Current Status</label>
+          <select name="status" class="form-control" style="background-color: var(--bg-dark); color: var(--text-main);">
+            <option value="Pending" {% if order.status == 'Pending' %}selected{% endif %}>Pending</option>
+            <option value="Processing" {% if order.status == 'Processing' %}selected{% endif %}>Processing</option>
+            <option value="Shipped" {% if order.status == 'Shipped' %}selected{% endif %}>Shipped</option>
+            <option value="Delivered" {% if order.status == 'Delivered' %}selected{% endif %}>Delivered</option>
+            <option value="Cancelled" {% if order.status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Update Order Status</button>
+      </form>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

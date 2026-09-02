@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     # Custom apps
     'shop.apps.ShopConfig',
     'accounts.apps.AccountsConfig',
+    'admin_panel',
 ]
 
 MIDDLEWARE = [
