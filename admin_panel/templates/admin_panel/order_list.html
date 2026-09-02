@@ -8,56 +8,77 @@
   <span>Order Management</span>
 </div>
 
-<div class="card">
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Order ID</th>
-        <th>Date</th>
-        <th>Customer</th>
-        <th>Total</th>
-        <th>Payment</th>
-        <th>Status</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for order in orders %}
+<div class="card" style="background-color: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden;">
+  <div style="overflow-x: auto;">
+    <table class="table">
+      <thead>
         <tr>
-          <td style="font-family: monospace; font-weight: 600;">#{{ order.id|stringformat:"05d" }}</td>
-          <td>{{ order.created|date:"Y-m-d H:i" }}</td>
-          <td>{{ order.first_name }} {{ order.last_name }}<br><span style="font-size: 0.8rem; color: var(--text-muted);">{{ order.email }}</span></td>
-          <td style="font-weight: 600;">PKR {{ order.get_total_cost|floatformat:2 }}</td>
-          <td>
-            {% if order.paid %}
-              <span style="color: var(--success); font-weight: 500;">Paid</span>
-            {% else %}
-              <span style="color: var(--warning); font-weight: 500;">Unpaid</span>
-            {% endif %}
-          </td>
-          <td>
-            {% if order.status == 'Pending' %}
-              <span class="badge badge-warning">Pending</span>
-            {% elif order.status == 'Processing' %}
-              <span class="badge badge-info">Processing</span>
-            {% elif order.status == 'Shipped' %}
-              <span class="badge badge-info">Shipped</span>
-            {% elif order.status == 'Delivered' %}
-              <span class="badge badge-success">Delivered</span>
-            {% elif order.status == 'Cancelled' %}
-              <span class="badge badge-danger">Cancelled</span>
-            {% endif %}
-          </td>
-          <td>
-            <a href="{% url 'admin_panel:order_detail' order.id %}" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">View Details</a>
-          </td>
+          <th>Order ID</th>
+          <th>Date</th>
+          <th>Customer</th>
+          <th>Total</th>
+          <th>Payment</th>
+          <th>Status</th>
+          <th style="text-align: right;">Action</th>
         </tr>
-      {% empty %}
-        <tr>
-          <td colspan="7" style="text-align: center; padding: 2rem; color: var(--text-muted);">No orders found.</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        {% for order in orders %}
+          <tr>
+            <td style="font-family: monospace; font-weight: 600; color: var(--text-main);">#{{ order.id|stringformat:"05d" }}</td>
+            <td style="color: var(--text-muted);">{{ order.created|date:"M d, Y" }} <br><span style="font-size: 0.8rem;">{{ order.created|date:"H:i" }}</span></td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 32px; height: 32px; background: rgba(59, 130, 246, 0.1); color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.8rem;">
+                  {{ order.first_name|first }}{{ order.last_name|first }}
+                </div>
+                <div>
+                  <div style="font-weight: 600; color: var(--text-main);">{{ order.first_name }} {{ order.last_name }}</div>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">{{ order.email }}</div>
+                </div>
+              </div>
+            </td>
+            <td style="font-weight: 700; color: var(--text-main);">PKR {{ order.get_total_cost|floatformat:2 }}</td>
+            <td>
+              {% if order.paid %}
+                <div style="display: flex; align-items: center; gap: 0.25rem; color: #34d399; font-weight: 500; font-size: 0.9rem;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                  Paid
+                </div>
+              {% else %}
+                <div style="display: flex; align-items: center; gap: 0.25rem; color: #fbbf24; font-weight: 500; font-size: 0.9rem;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                  Unpaid
+                </div>
+              {% endif %}
+            </td>
+            <td>
+              {% if order.status == 'Pending' %}
+                <span class="badge badge-warning">Pending</span>
+              {% elif order.status == 'Processing' %}
+                <span class="badge badge-info">Processing</span>
+              {% elif order.status == 'Shipped' %}
+                <span class="badge badge-info">Shipped</span>
+              {% elif order.status == 'Delivered' %}
+                <span class="badge badge-success">Delivered</span>
+              {% elif order.status == 'Cancelled' %}
+                <span class="badge badge-danger">Cancelled</span>
+              {% endif %}
+            </td>
+            <td style="text-align: right;">
+              <a href="{% url 'admin_panel:order_detail' order.id %}" class="btn btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; border-radius: 6px;">View</a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="7" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity: 0.5; margin-bottom: 1rem;"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+              <br>No orders found.
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 {% endblock %}

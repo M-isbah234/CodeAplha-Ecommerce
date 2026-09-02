@@ -9,34 +9,46 @@
   <a href="{% url 'admin_panel:category_add' %}" class="btn btn-primary">+ Add New Category</a>
 </div>
 
-<div class="card">
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Slug</th>
-        <th>Parent Category</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for cat in categories %}
+<div class="card" style="background-color: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden;">
+  <div style="overflow-x: auto;">
+    <table class="table">
+      <thead>
         <tr>
-          <td style="font-weight: 500;">{{ cat.name }}</td>
-          <td style="color: var(--text-muted);">{{ cat.slug }}</td>
-          <td>
-            {% if cat.parent %}
-              {{ cat.parent.name }}
-            {% else %}
-              <span style="color: var(--text-muted); font-style: italic;">None (Top level)</span>
-            {% endif %}
-          </td>
+          <th>Name</th>
+          <th>Slug</th>
+          <th>Parent Category</th>
         </tr>
-      {% empty %}
-        <tr>
-          <td colspan="3" style="text-align: center; padding: 2rem; color: var(--text-muted);">No categories found.</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        {% for cat in categories %}
+          <tr>
+            <td style="font-weight: 600; color: var(--text-main);">
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 32px; height: 32px; background: rgba(59, 130, 246, 0.1); color: var(--primary); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                </div>
+                {{ cat.name }}
+              </div>
+            </td>
+            <td style="color: var(--text-muted); font-family: monospace; font-size: 0.9rem;">/{{ cat.slug }}</td>
+            <td>
+              {% if cat.parent %}
+                <span class="badge badge-secondary">{{ cat.parent.name }}</span>
+              {% else %}
+                <span style="color: var(--text-muted); font-size: 0.85rem;">— Top Level —</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="3" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity: 0.5; margin-bottom: 1rem;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+              <br>No categories found.
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 {% endblock %}

@@ -9,12 +9,12 @@
   <a href="{% url 'admin_panel:product_list' %}" class="btn btn-secondary">Cancel</a>
 </div>
 
-<div class="card" style="max-width: 800px;">
+<div class="card" style="max-width: 900px; background-color: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem;">
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     
     {% if form.errors %}
-      <div class="alert alert-error">
+      <div class="alert alert-error" style="margin-bottom: 2rem;">
         <strong>Please correct the following errors:</strong>
         {{ form.errors }}
       </div>
@@ -24,14 +24,12 @@
       <div class="form-group">
         <label for="{{ form.name.id_for_label }}">Product Name</label>
         {{ form.name }}
-        <script>document.getElementById('{{ form.name.id_for_label }}').classList.add('form-control');</script>
       </div>
       
       <div class="form-group">
-        <label for="{{ form.slug.id_for_label }}">Slug</label>
+        <label for="{{ form.slug.id_for_label }}">URL Slug</label>
         {{ form.slug }}
-        <script>document.getElementById('{{ form.slug.id_for_label }}').classList.add('form-control');</script>
-        <span style="font-size: 0.8rem; color: var(--text-muted);">Used for URLs. Must be unique.</span>
+        <span style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-top: 0.25rem;">Used for URLs. Must be unique.</span>
       </div>
     </div>
 
@@ -39,7 +37,6 @@
       <div class="form-group">
         <label for="{{ form.category.id_for_label }}">Category</label>
         {{ form.category }}
-        <script>document.getElementById('{{ form.category.id_for_label }}').classList.add('form-control');</script>
       </div>
       
       <div class="form-group">
@@ -51,26 +48,23 @@
     <div class="form-group">
       <label for="{{ form.description.id_for_label }}">Description</label>
       {{ form.description }}
-      <script>document.getElementById('{{ form.description.id_for_label }}').classList.add('form-control');</script>
     </div>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem;">
-      <div class="form-group">
-        <label for="{{ form.price.id_for_label }}">Price (PKR )</label>
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; background: var(--bg-dark); padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--border);">
+      <div class="form-group" style="margin-bottom: 0;">
+        <label for="{{ form.price.id_for_label }}">Price (PKR)</label>
         {{ form.price }}
-        <script>document.getElementById('{{ form.price.id_for_label }}').classList.add('form-control');</script>
       </div>
       
-      <div class="form-group">
+      <div class="form-group" style="margin-bottom: 0;">
         <label for="{{ form.stock.id_for_label }}">Inventory Stock</label>
         {{ form.stock }}
-        <script>document.getElementById('{{ form.stock.id_for_label }}').classList.add('form-control');</script>
       </div>
       
-      <div class="form-group" style="display: flex; flex-direction: column; justify-content: center;">
-        <label>
+      <div class="form-group" style="display: flex; flex-direction: column; justify-content: center; margin-bottom: 0;">
+        <label style="margin-bottom: 0;">
           {{ form.available }} 
-          <span style="margin-left: 0.5rem; color: var(--text-main);">Available (Active)</span>
+          <span style="margin-left: 0.5rem; color: var(--text-main); font-weight: 600;">Available (Active)</span>
         </label>
       </div>
     </div>
@@ -78,7 +72,7 @@
     <hr style="border: 0; border-top: 1px solid var(--border); margin: 2rem 0;">
 
     <div style="display: flex; justify-content: flex-end; gap: 1rem;">
-      <button type="submit" class="btn btn-primary">{% if is_edit %}Save Changes{% else %}Publish Product{% endif %}</button>
+      <button type="submit" class="btn btn-primary" style="padding: 0.75rem 2rem;">{% if is_edit %}Save Changes{% else %}Publish Product{% endif %}</button>
     </div>
   </form>
 </div>

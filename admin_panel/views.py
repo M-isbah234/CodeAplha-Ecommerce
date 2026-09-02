@@ -34,13 +34,31 @@ def dashboard(request):
             'expenses_pct': min(100, int(day_expenses / 500.0 * 100)) if day_expenses > 0 else 2,
         })
 
+    from django.contrib.auth.models import User
+    products_count = Product.objects.count()
+    users_count = User.objects.count()
+    
+    # Get top 5 recent orders
+    recent_orders = orders[:5]
+    
+    # Calculate category sales for chart (simplistic approach for demo)
+    # We will pass JSON data similar to analytics
+    import json
+    category_sales_qs = OrderItem.objects.filter(order__paid=True).values('product__category__name').annotate(total=Sum('quantity'))
+    cat_names = [item['product__category__name'] for item in category_sales_qs]
+    cat_totals = [item['total'] for item in category_sales_qs]
+
     return render(request, 'admin_panel/dashboard.html', {
-        'orders': orders[:10],
+        'orders': recent_orders,
+        'products_count': products_count,
+        'users_count': users_count,
         'total_sales': total_sales,
         'active_orders_count': active_orders_count,
         'monthly_expenses': monthly_expenses,
         'net_profit': net_profit,
         'chart_data': chart_data,
+        'cat_names': json.dumps(cat_names),
+        'cat_totals': json.dumps(cat_totals),
         'low_stock_products': low_stock_products,
         'low_stock_variants': low_stock_variants,
     })
@@ -132,25 +150,28 @@ def analytics_view(request):
     
     # 30-day stats
     thirty_day_orders = Order.objects.filter(created__gte=thirty_days_ago, paid=True)
-    thirty_day_sales = sum(order.get_total_cost() for order in thirty_day_orders)
+    thirty_day_sales = float(sum(order.get_total_cost() for order in thirty_day_orders))
     thirty_day_aov = thirty_day_sales / thirty_day_orders.count() if thirty_day_orders.count() > 0 else 0
     thirty_day_profit = thirty_day_sales * 0.20 # 20% margin assumption
     
     # 7-day stats
     seven_day_orders = Order.objects.filter(created__gte=seven_days_ago, paid=True)
-    seven_day_sales = sum(order.get_total_cost() for order in seven_day_orders)
+    seven_day_sales = float(sum(order.get_total_cost() for order in seven_day_orders))
     seven_day_aov = seven_day_sales / seven_day_orders.count() if seven_day_orders.count() > 0 else 0
     seven_day_profit = seven_day_sales * 0.20 # 20% margin assumption
     
     # Top selling SKUs
-    top_selling_skus = OrderItem.objects.filter(order__paid=True).values('product__name').annotate(total_qty=Sum('quantity')).order_by('-total_qty')[:5]
+    top_selling_skus_qs = OrderItem.objects.filter(order__paid=True).values('product__name').annotate(total_qty=Sum('quantity')).order_by('-total_qty')[:5]
+    top_selling_skus = list(top_selling_skus_qs)
     
     # Fastest moving categories
-    fastest_categories = OrderItem.objects.filter(order__paid=True).values('product__category__name').annotate(total_qty=Sum('quantity')).order_by('-total_qty')[:5]
+    fastest_categories_qs = OrderItem.objects.filter(order__paid=True).values('product__category__name').annotate(total_qty=Sum('quantity')).order_by('-total_qty')[:5]
+    fastest_categories = list(fastest_categories_qs)
     
     # Dead stock
     dead_stock = Product.objects.annotate(sold=Sum('order_items__quantity')).filter(sold__isnull=True).order_by('-stock')[:5]
     
+    import json
     context = {
         'thirty_day_sales': thirty_day_sales,
         'thirty_day_aov': thirty_day_aov,
@@ -161,9 +182,25 @@ def analytics_view(request):
         'top_selling_skus': top_selling_skus,
         'fastest_categories': fastest_categories,
         'dead_stock': dead_stock,
+        'chart_labels_sku': json.dumps([item['product__name'] for item in top_selling_skus]),
+        'chart_data_sku': json.dumps([item['total_qty'] for item in top_selling_skus]),
+        'chart_labels_cat': json.dumps([item['product__category__name'] for item in fastest_categories]),
+        'chart_data_cat': json.dumps([item['total_qty'] for item in fastest_categories]),
     }
     return render(request, 'admin_panel/analytics.html', context)
 
+from .models import StoreSettings
+from .forms import StoreSettingsForm
+
 @staff_member_required
 def settings_view(request):
-    return render(request, 'admin_panel/settings.html')
+    settings_obj = StoreSettings.load()
+    if request.method == 'POST':
+        form = StoreSettingsForm(request.POST, instance=settings_obj)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Store settings updated successfully!')
+            return redirect('admin_panel:settings')
+    else:
+        form = StoreSettingsForm(instance=settings_obj)
+    return render(request, 'admin_panel/settings.html', {'form': form})

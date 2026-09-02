@@ -4,8 +4,51 @@
 {% block breadcrumbs %}Settings{% endblock %}
 
 {% block content %}
-<div class="card" style="background-color: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem;">
-  <h2 style="color: var(--text-main);">Store Settings</h2>
-  <p style="color: var(--text-muted); margin-top: 1rem;">Configure your store preferences, tax rates, and payment gateways here. Settings module is currently in development!</p>
+<div class="card" style="background-color: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; max-width: 800px; margin: 0 auto;">
+  <h2 style="color: var(--text-main); margin-bottom: 0.5rem;">Global Store Settings</h2>
+  <p style="color: var(--text-muted); margin-bottom: 2rem;">Configure your store preferences, localization, and system behavior.</p>
+  
+  <form method="post" action="{% url 'admin_panel:settings' %}">
+    {% csrf_token %}
+    
+    <h3 style="color: var(--text-main); margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">Localization & Contact</h3>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1rem;">
+      <div>
+        <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Default Currency</label>
+        {{ form.default_currency }}
+      </div>
+      <div>
+        <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Timezone</label>
+        {{ form.timezone }}
+      </div>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+      <div>
+        <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Support Email</label>
+        {{ form.support_email }}
+      </div>
+      <div>
+        <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Support Phone</label>
+        {{ form.support_phone }}
+      </div>
+    </div>
+    
+    <h3 style="color: var(--text-main); margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">System Controls</h3>
+    <div style="margin-bottom: 1rem; display: flex; align-items: center; gap: 1rem;">
+      {{ form.staff_roles_enabled }}
+      <label style="color: var(--text-main);">{{ form.staff_roles_enabled.help_text }}</label>
+    </div>
+    <div style="margin-bottom: 1rem; display: flex; align-items: center; gap: 1rem;">
+      {{ form.email_webhooks_enabled }}
+      <label style="color: var(--text-main);">{{ form.email_webhooks_enabled.help_text }}</label>
+    </div>
+    <div style="margin-bottom: 2rem; display: flex; align-items: center; gap: 1rem;">
+      {{ form.auto_maintenance }}
+      <label style="color: var(--text-main);">{{ form.auto_maintenance.help_text }}</label>
+    </div>
+    
+    <button type="submit" class="btn btn-primary">Save Settings</button>
+  </form>
 </div>
 {% endblock %}
