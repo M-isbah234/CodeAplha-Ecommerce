@@ -1,8 +1,8 @@
-# 🛒 Premium E-Commerce Site
+# Premium E-Commerce Site
 
 A professional, responsive e-commerce platform built with Django. This project provides a complete shopping experience including product browsing, category-based filtering, a shopping cart system, and a secure checkout process.
 
-## 🚀 Features
+## Features
 
 - **Product Catalog:** Browse products with detailed descriptions, pricing, and images.
 - **Category Management:** Organized product hierarchy with support for parent and child categories.
@@ -12,14 +12,14 @@ A professional, responsive e-commerce platform built with Django. This project p
 - **Order Processing:** Complete checkout flow from shipping details to order confirmation.
 - **Responsive Design:** A modern, premium UI designed to work across all device sizes.
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Backend:** Python 3.x, Django
 - **Database:** SQLite (Development)
 - **Frontend:** HTML5, CSS3 (Custom Premium Styling), Vanilla JavaScript
 - **Image Processing:** Pillow
 
-## ⚙️ Getting Started
+## Getting Started
 
 ### Prerequisites
 Ensure you have Python installed on your system.
