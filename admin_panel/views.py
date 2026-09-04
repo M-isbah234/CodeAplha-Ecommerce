@@ -9,6 +9,9 @@ from .forms import ProductForm, CategoryForm
 
 @staff_member_required
 def dashboard(request):
+    """
+    Renders the admin dashboard with sales, orders, and product statistics.
+    """
     orders = Order.objects.all().order_by('-created')
     total_sales = sum(order.get_total_cost() for order in orders if order.paid)
     active_orders_count = orders.filter(paid=True, status__in=['Pending', 'Processing', 'Shipped']).count()
@@ -66,11 +69,17 @@ def dashboard(request):
 
 @staff_member_required
 def product_list(request):
+    """
+    Displays a list of all products in the store.
+    """
     products = Product.objects.all().order_by('-created')
     return render(request, 'admin_panel/product_list.html', {'products': products})
 
 @staff_member_required
 def product_add(request):
+    """
+    Handles the creation of a new product.
+    """
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
@@ -83,6 +92,9 @@ def product_add(request):
 
 @staff_member_required
 def product_edit(request, id):
+    """
+    Handles the editing of an existing product.
+    """
     product = get_object_or_404(Product, id=id)
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES, instance=product)
@@ -96,6 +108,9 @@ def product_edit(request, id):
 
 @staff_member_required
 def product_delete(request, id):
+    """
+    Handles the deletion of a product.
+    """
     product = get_object_or_404(Product, id=id)
     if request.method == 'POST':
         name = product.name
