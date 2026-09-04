@@ -13,6 +13,9 @@ from .forms import CartAddProductForm, OrderCreateForm
 
 
 def product_list(request, category_slug=None):
+    """
+    Displays a list of available products, optionally filtered by category, search query, price, and sorted.
+    """
     category = None
     categories = Category.objects.all()
     products = Product.objects.filter(available=True)
@@ -74,6 +77,9 @@ def search_autocomplete(request):
 
 
 def product_detail(request, id, slug):
+    """
+    Displays the details of a single product, including reviews and cart add form.
+    """
     product = get_object_or_404(Product, id=id, slug=slug, available=True)
     cart_product_form = CartAddProductForm()
     reviews = product.reviews.all()
@@ -95,6 +101,9 @@ def product_detail(request, id, slug):
 
 @require_POST
 def cart_add(request, product_id):
+    """
+    Adds a product (and optionally a specific variant) to the cart.
+    """
     cart = Cart(request)
     product = get_object_or_404(Product, id=product_id)
     form = CartAddProductForm(request.POST)
@@ -127,6 +136,9 @@ def cart_add(request, product_id):
 
 @require_POST
 def cart_remove(request, product_id):
+    """
+    Removes a product from the cart.
+    """
     cart = Cart(request)
     product = get_object_or_404(Product, id=product_id)
     cart.remove(product)
@@ -150,6 +162,9 @@ def cart_detail(request):
 
 @login_required
 def order_create(request):
+    """
+    Handles the checkout process, creating an order from the user's cart.
+    """
     cart = Cart(request)
     if len(cart) == 0:
         messages.warning(request, "Your cart is empty. Please add products before checking out.")
