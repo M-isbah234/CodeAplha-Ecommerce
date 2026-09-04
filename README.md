@@ -69,6 +69,8 @@ Ensure you have Python installed on your system.
 3. **Admin Panel:**
    Access the Django admin dashboard at `http://127.0.0.1:8000/admin/` to manage products and categories.
 
+4. **Control Panel:**
+   Access the control panel at `http://127.0.0.1:8000/control-panel/` to manage products and categories.
 ## 📁 Project Structure
 
 - `core/`: Project configuration and settings.
@@ -76,3 +78,6 @@ Ensure you have Python installed on your system.
 - `accounts/`: User authentication and profile management.
 - `static/`: CSS, JavaScript, and other frontend assets.
 - `media/`: User-uploaded product images.
+
+## Production Warning: When you deploy to Vercel, remember that Vercel's file system is read-only. This means images uploaded through the admin panel will disappear after a few minutes.
+## Solution: For production, you will eventually need to connect an external storage service like Cloudinary or AWS S3 (which is very common for Django apps). For now, during local development, it will work perfectly using your local media folder.

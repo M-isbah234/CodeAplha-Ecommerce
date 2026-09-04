@@ -1,51 +1,29 @@
-# Walkthrough: E-Commerce Site Implementation
+# Vercel & Supabase Deployment Guide
 
-We have built a full-featured e-commerce site using Django, SQLite, HTML, Vanilla CSS, and JavaScript.
+Your project is now 100% ready to be deployed to Vercel and connected to a production Supabase PostgreSQL database. Here is everything we accomplished:
 
----
+## Production Readiness
+1. **Dynamic Environment Variables:** Your `settings.py` is now fully dynamic. It securely loads `SECRET_KEY`, `DEBUG`, and `ALLOWED_HOSTS` from environment variables, keeping your app secure.
+2. **Whitenoise Integration:** We installed and configured `whitenoise` in your middleware so that your static files (CSS, JS, Images) will be efficiently served in production without needing a separate CDN.
+3. **Database URL parsing:** We added `dj-database-url` so your app can seamlessly switch between your local `db.sqlite3` and a remote `DATABASE_URL` (like Supabase) simply by checking your environment variables.
 
-## What Was Created
+## Vercel Integration
+1. **`vercel.json`**: We created the required routing configuration to correctly map Vercel's serverless functions to your Django `wsgi.py`.
+2. **`wsgi.py` Update**: We exported the `app` object so that Vercel's python builder can hook into Django.
+3. **`build.sh`**: We wrote a custom build script that Vercel will execute to run `python manage.py collectstatic` during the deployment process, ensuring all your beautiful styles are bundled.
 
-### 1. Backend & Architecture
-- **Centralized Environment**: Installed `django` and verified `pillow` within `C:\Users\AAMIR SHAMSI\Agentic_Ai\.venv`.
-- **Modular Django Structure**:
-  - `core`: Django configuration directory ([settings.py](file:///c:/Users/AAMIR%20SHAMSI/Agentic_Ai/CodeAlpha/ecommerce_site/core/settings.py), [urls.py](file:///c:/Users/AAMIR%20SHAMSI/Agentic_Ai/CodeAlpha/ecommerce_site/core/urls.py)).
-  - `shop`: Product catalog, categories, search, session-based cart, order placement, and Django Admin configurations ([models.py](file:///c:/Users/AAMIR%20SHAMSI/Agentic_Ai/CodeAlpha/ecommerce_site/shop/models.py), [views.py](file:///c:/Users/AAMIR%20SHAMSI/Agentic_Ai/CodeAlpha/ecommerce_site/shop/views.py), [urls.py](file:///c:/Users/AAMIR%20SHAMSI/Agentic_Ai/CodeAlpha/ecommerce_site/shop/urls.py), [cart.py](file:///c:/Users/AAMIR%20SHAMSI/Agentic_Ai/CodeAlpha/ecommerce_site/shop/cart.py)).
-  - `accounts`: User authentication views for signup, login, and logout ([forms.py](file:///c:/Users/AAMIR%20SHAMSI/Agentic_Ai/CodeAlpha/ecommerce_site/accounts/forms.py), [views.py](file:///c:/Users/AAMIR%20SHAMSI/Agentic_Ai/CodeAlpha/ecommerce_site/accounts/views.py), [urls.py](file:///c:/Users/AAMIR%20SHAMSI/Agentic_Ai/CodeAlpha/ecommerce_site/accounts/urls.py)).
+## Next Steps to Deploy
+You are ready to push this to GitHub and deploy!
 
-### 2. Database Models & Seeding
-- Created `Category`, `Product`, `Order`, and `OrderItem` models with proper indexes and relationships.
-- Ran migrations (`shop.0001_initial`, `auth`, `sessions`, `admin`).
-- Created Django superuser credentials (`admin` / `admin123`).
-- Ran [`seed_data.py`](file:///c:/Users/AAMIR%20SHAMSI/Agentic_Ai/CodeAlpha/ecommerce_site/seed_data.py) to automatically seed categories (*Electronics*, *Apparel*, *Home & Accessories*) and sample products.
+1. Commit all these changes and push to your GitHub repository.
+2. Go to [Vercel](https://vercel.com/) and create a new project from your GitHub repo.
+3. Go to [Supabase](https://supabase.com/) and create a new database. Go to Project Settings -> Database -> Connection String (URI).
+4. In Vercel, go to the **Environment Variables** section of your new project and add the following:
+   - `SECRET_KEY`: (Generate a random secure string)
+   - `DEBUG`: `False`
+   - `ALLOWED_HOSTS`: `your-vercel-project-url.vercel.app`
+   - `DATABASE_URL`: (Paste the Supabase Connection URI here)
+5. Hit Deploy! 
 
-### 3. Frontend & Aesthetics
-- **Custom Dark Glassmorphic Design**: Built [`style.css`](file:///c:/Users/AAMIR%20SHAMSI/Agentic_Ai/CodeAlpha/ecommerce_site/shop/static/shop/css/style.css) featuring Outfit typography, slate dark mode background, gradient brand logo, hover card elevation, and emerald price badges.
-- **Templates**:
-  - [`base.html`](file:///c:/Users/AAMIR%20SHAMSI/Agentic_Ai/CodeAlpha/ecommerce_site/shop/templates/shop/base.html): Sticky navbar, search bar, live cart count badge, user state controls.
-  - [`list.html`](file:///c:/Users/AAMIR%20SHAMSI/Agentic_Ai/CodeAlpha/ecommerce_site/shop/templates/shop/product/list.html): Category filter sidebar, product grid.
-  - [`detail.html`](file:///c:/Users/AAMIR%20SHAMSI/Agentic_Ai/CodeAlpha/ecommerce_site/shop/templates/shop/product/detail.html): Image, stock badges, description, and add-to-cart form.
-  - [`cart/detail.html`](file:///c:/Users/AAMIR%20SHAMSI/Agentic_Ai/CodeAlpha/ecommerce_site/shop/templates/shop/cart/detail.html): Interactive cart table with quantity selectors and subtotal calculations.
-  - [`order/create.html`](file:///c:/Users/AAMIR%20SHAMSI/Agentic_Ai/CodeAlpha/ecommerce_site/shop/templates/shop/order/create.html) & [`order/created.html`](file:///c:/Users/AAMIR%20SHAMSI/Agentic_Ai/CodeAlpha/ecommerce_site/shop/templates/shop/order/created.html): Shipping details collection and confirmation view.
-  - [`login.html`](file:///c:/Users/AAMIR%20SHAMSI/Agentic_Ai/CodeAlpha/ecommerce_site/accounts/templates/accounts/login.html) & [`register.html`](file:///c:/Users/AAMIR%20SHAMSI/Agentic_Ai/CodeAlpha/ecommerce_site/accounts/templates/accounts/register.html): Styled authentication cards.
-
----
-
-## Verification Results
-
-- **System Check**: Executed `..\..\.venv\Scripts\python.exe manage.py check` with output `System check identified no issues (0 silenced)`.
-- **Database Seed**: Database successfully populated with sample items.
-
----
-
-## How to Run the Server
-
-To start the local development server:
-
-```powershell
-..\..\.venv\Scripts\python.exe manage.py runserver
-```
-
-Then open your browser at:
-- **E-Commerce Home**: `http://127.0.0.1:8000/`
-- **Django Admin Dashboard**: `http://127.0.0.1:8000/admin/` (Login with `admin` / `admin123`)
+> [!NOTE]
+> For local development, simply rename `.env.example` to `.env` and fill it out if you want to connect your local environment to your remote Supabase database, otherwise it will safely fallback to your local SQLite DB.
